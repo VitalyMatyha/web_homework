@@ -1,7 +1,5 @@
-from django.urls import path
-from .views import home_view, contacts_view
+from django.urls import path, include  # подключаем include
 
 urlpatterns = [
-    path('', home_view),            # /
-    path('contacts/', contacts_view),  # /contacts/
+    path('', include('catalog.urls')),  # все маршруты из catalog
 ]
