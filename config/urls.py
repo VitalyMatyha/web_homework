@@ -1,6 +1,7 @@
-from django.urls import re_path
-from .views import contacts_view
+from django.urls import path
+from .views import home_view, contacts_view
 
 urlpatterns = [
-    re_path(r'.*', contacts_view),
+    path('', home_view),            # /
+    path('contacts/', contacts_view),  # /contacts/
 ]
