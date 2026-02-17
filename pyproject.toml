@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "poetry add django"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "nn"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "n"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

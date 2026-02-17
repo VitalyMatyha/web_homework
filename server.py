@@ -12,7 +12,7 @@ class Handler(BaseHTTPRequestHandler):
 
         self.wfile.write(html.encode("utf-8"))
 
-
+#
 server = HTTPServer(("localhost", 8000), Handler)
 print("http://localhost:8000")
 server.serve_forever()
