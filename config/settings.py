@@ -100,7 +100,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-INSTALLED_APPS = [
+INSTALLED_APPS = ['django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.staticfiles',
     'catalog',
 ]
