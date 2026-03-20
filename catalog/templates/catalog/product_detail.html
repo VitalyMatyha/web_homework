@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ product.name }}</h1>
+<h1>{{ object.name }}</h1>
 
-<img src="{{ product.image.url }}" alt="{{ product.name }}">
+{% if object.image %}
+    <img src="{{ object.image.url }}" alt="{{ object.name }}">
+{% endif %}
 
-<p>{{ product.description }}</p>
-<p>Цена: {{ product.price }}</p>
+<p>{{ object.description }}</p>
+<p>Цена: {{ object.price }}</p>
 
-<a href="{% url 'catalog:index' %}">Назад</a>
+<a href="{% url 'catalog:products' %}">Назад</a>
 {% endblock %}
