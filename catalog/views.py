@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Product
 from .forms import ProductForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Главная страница
 class IndexView(ListView):
@@ -12,7 +13,7 @@ class IndexView(ListView):
 
 
 # Страница одного товара
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
@@ -45,19 +46,19 @@ class ProductListView(ListView):
     template_name = 'catalog/product_list.html'
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
     success_url = reverse_lazy('catalog:products')
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
@@ -66,7 +67,7 @@ class ProductUpdateView(UpdateView):
         return reverse_lazy('catalog:product_detail', args=[self.object.pk])
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:products')
