@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Товары</h1>
+
+<a href="{% url 'catalog:product_create' %}">Добавить товар</a>
+
+{% for product in object_list %}
+    <div>
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description|truncatechars:100 }}</p>
+
+        <a href="{% url 'catalog:product_detail' product.pk %}">Подробнее</a>
+        <a href="{% url 'catalog:product_update' product.pk %}">Редактировать</a>
+        <a href="{% url 'catalog:product_delete' product.pk %}">Удалить</a>
+    </div>
+{% endfor %}
+
+{% endblock %}
