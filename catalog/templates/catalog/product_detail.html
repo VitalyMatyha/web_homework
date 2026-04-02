@@ -12,3 +12,15 @@
 
 <a href="{% url 'catalog:products' %}">Назад</a>
 {% endblock %}
+
+{% if user == product.owner %}
+    <a href="{% url 'catalog:product_update' product.pk %}">Редактировать</a>
+{% endif %}
+
+{% if user == product.owner or perms.catalog.delete_product %}
+    <a href="{% url 'catalog:product_delete' product.pk %}">Удалить</a>
+{% endif %}
+
+{% if perms.catalog.can_unpublish_product %}
+    <a href="{% url 'catalog:unpublish_product' product.pk %}">Снять с публикации</a>
+{% endif %}
