@@ -3,6 +3,20 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Product
 from .forms import ProductForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404, redirect
+
+def unpublish_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if not request.user.has_perm('catalog.can_unpublish_product'):
+        raise PermissionDenied
+
+    product.is_published = False
+    product.save()
+
+    return redirect('catalog:product_detail', pk=pk)
 
 # Главная страница
 class IndexView(ListView):
@@ -12,7 +26,7 @@ class IndexView(ListView):
 
 
 # Страница одного товара
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
     context_object_name = 'product'
@@ -45,19 +59,28 @@ class ProductListView(ListView):
     template_name = 'catalog/product_list.html'
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'catalog/product_detail.html'
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
     success_url = reverse_lazy('catalog:products')
 
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    success_url = reverse_lazy('catalog:index')
 
-class ProductUpdateView(UpdateView):
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'catalog/product_form.html'
@@ -66,7 +89,32 @@ class ProductUpdateView(UpdateView):
         return reverse_lazy('catalog:product_detail', args=[self.object.pk])
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     template_name = 'catalog/product_confirm_delete.html'
     success_url = reverse_lazy('catalog:products')
+
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+
+        if obj.owner != request.user:
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    success_url = reverse_lazy('catalog:index')
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+
+        if obj.owner != request.user and not request.user.has_perm('catalog.delete_product'):
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
