@@ -6,6 +6,29 @@ from .forms import ProductForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.views.generic import ListView
+from .services import get_products_by_category
+from django.core.cache import cache
+from django.conf import settings
+
+
+
+class ProductsByCategoryView(ListView):
+    template_name = 'catalog/products_by_category.html'
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        category_id = self.kwargs.get('pk')
+        return get_products_by_category(category_id)
+
+
+@method_decorator(cache_page(60 * 5), name='dispatch')  # 5 минут
+class ProductDetailView(DetailView):
+    model = Product
+    template_name = 'catalog/product_detail.html'
+
 
 def unpublish_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
@@ -56,8 +79,23 @@ def index(request):
 
 class ProductListView(ListView):
     model = Product
-    template_name = 'catalog/product_list.html'
+    template_name = 'catalog/index.html'
+    context_object_name = 'products'
 
+    def get_queryset(self):
+        # если кеш выключен — просто возвращаем из БД
+        if not settings.CACHE_ENABLED:
+            return Product.objects.all()
+
+        key = 'product_list'
+        products = cache.get(key)
+
+        # если в кеше нет — берём из БД и кладём в кеш
+        if products is None:
+            products = Product.objects.all()
+            cache.set(key, products, 60 * 5)  # 5 минут
+
+        return products
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product

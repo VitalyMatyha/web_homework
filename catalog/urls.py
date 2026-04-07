@@ -6,6 +6,7 @@ from .views import (
     ProductDetailView,
     ProductCreateView,
     ProductUpdateView,
+    ProductsByCategoryView,
     ProductDeleteView
 )
 from django.urls import path, include
@@ -36,5 +37,6 @@ urlpatterns = [
     path('<int:pk>/update/', ProductUpdateView.as_view(), name='product_update'),
     path('<int:pk>/delete/', ProductDeleteView.as_view(), name='product_delete'),
     path('product/<int:pk>/unpublish/', views.unpublish_product, name='unpublish_product'),
+    path('category/<int:pk>/', ProductsByCategoryView.as_view(), name='products_by_category'),
 ]
 
